@@ -13,8 +13,21 @@ data_dir <- "C:/Users/Invario/Documents/Wagner/Spring 2021 - Large Scale Data An
 
 #Read in evictions
 evictions <- str_glue('{data_dir}/Evictions.csv') %>%
-  read_csv()
+  read_csv() %>%
+  clean_names()
 
 
-DOB_permits <- str_glue('{data_dir}/Historical_DOB_Permit_Issuance.csv') %>%
-  read_csv()
+#Read in permits from 1989 - 2013
+DOB_permits_historical <- str_glue('{data_dir}/Historical_DOB_Permit_Issuance.csv') %>%
+  read_csv() %>%
+  clean_names()
+#Read in current permits
+DOB_permits <- str_glue('{data_dir}/DOB_Permit_Issuance.csv') %>%
+  read_csv() %>%
+  clean_names()
+
+spec(DOB_permits)
+DOB_permits_small <- DOB_permits 
+  #as.Date.character(filing_date)
+  
+  
