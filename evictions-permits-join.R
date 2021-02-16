@@ -8,4 +8,13 @@ library(tidyverse)
 library(lubridate)
 library(janitor)
 
-data_dir <- "J:/DEPT/REUP/Projects/NYSAFAH Rent Survey/Data/Clean"
+data_dir <- "C:/Users/Invario/Documents/Wagner/Spring 2021 - Large Scale Data Analysis/Assignment 1/Data"
+
+
+#Read in evictions
+evictions <- str_glue('{data_dir}/Evictions.csv') %>%
+  read_csv()
+
+
+DOB_permits <- str_glue('{data_dir}/Historical_DOB_Permit_Issuance.csv') %>%
+  read_csv()
