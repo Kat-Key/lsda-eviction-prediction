@@ -1,0 +1,70 @@
+---
+title: "acs_data_pull"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+install.packages("tidyverse", "tidycensus")
+library(tidyverse)
+library(tidycensus)
+
+census_api_key("4ce84da33024270337d2c7a57c4b2cbf6bc78f6c")
+```
+
+```{r}
+#Pulling 2017-2013 Data
+
+census_2017 <- get_acs(
+  geography = "zip code tabulation area", 
+  survey = "acs5",
+  geometry = FALSE,
+  year = 2017,
+  variables = c( 
+    "pov_pct" = "C17002_001", # poverty rate
+    "hh_inc_med" = "B25119_001E", # hh_inc_med
+    "rent_gross_med" = "B25064_001E", # rent_gross_med
+    #acs_vars("B25070_{7:10*}E") # rent_burden_num
+    "pop_race_asian_num" = "B03002_006E", # pop_race_asian_num
+    "pop_race_black_num" = "B03002_004E", # pop_race_black_num
+    "pop_race_hisp_num" = "B03002_012E", # pop_race_hisp_num
+    "pop_race_white_num" = "B03002_003E", # pop_race_white_num
+    "total_units_rent" = "B25032_013E", # 	total_units_rent
+    "total_units" = "B25024_001E" # total_units
+    )
+    ) %>%
+  select("GEOID", "NAME", "variable", "estimate") %>%
+  pivot_wider(id_cols = c("GEOID", "NAME"), names_from = "variable", values_from = "estimate")
+```
+```{r}
+#Pulling 2012-20 Data
+
+census_2012 <- get_acs(
+  geography = "zip code tabulation area", 
+  survey = "acs5",
+  geometry = FALSE,
+  year = 2012,
+  variables = c( 
+    "pov_pct" = "C17002_001", # poverty rate
+    "hh_inc_med" = "B25119_001E", # hh_inc_med
+    "rent_gross_med" = "B25064_001E", # rent_gross_med
+    #acs_vars("B25070_{7:10*}E") # rent_burden_num
+    "pop_race_asian_num" = "B03002_006E", # pop_race_asian_num
+    "pop_race_black_num" = "B03002_004E", # pop_race_black_num
+    "pop_race_hisp_num" = "B03002_012E", # pop_race_hisp_num
+    "pop_race_white_num" = "B03002_003E", # pop_race_white_num
+    "total_units_rent" = "B25032_013E", # 	total_units_rent
+    "total_units" = "B25024_001E" # total_units
+    )
+    ) %>%
+  select("GEOID", "NAME", "variable", "estimate") %>%
+  pivot_wider(id_cols = c("GEOID", "NAME"), names_from = "variable", values_from = "estimate")
+
+```
+
+## Filtering Zipcodes
+
+```{r}
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
