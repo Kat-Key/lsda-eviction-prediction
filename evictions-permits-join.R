@@ -33,14 +33,11 @@ evictions_zip <- evictions %>%
 
 #Read in zip to zcta
 
-zcta_join <- str_glue('{data_dir}/zip_to_zcta10_nyc.csv') %>%
-  read_csv() 
+zcta_join <- str_glue('{data_dir}/zip_to_zcta_nyc.csv') %>%
+  read_csv() %>%
+  select(-c("X5","X6"))
 
-#Join evictions_zip and zcta_join to convert the zip codes to zctas
+eviction_zcta <- left_join(evictions_zip,zcta_join, by = c("eviction_zip" = "zipcode"))
 
-eviction_zcta <- left_join(evictions_zip,zcta_join, by = c("eviction_zip" = "ZIP"))
-
-#ZCTA does not capture all of the zips - need to explore
-
-eviction_zcta_na <- eviction_zcta %>%
-  filter(is.na(ZCTA))
+# eviction_zcta_na <- eviction_zcta %>%
+#   filter(is.na(zcta))
