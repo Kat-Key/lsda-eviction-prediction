@@ -16,7 +16,11 @@ data_dir <- "C:/Users/Invario/Documents/Wagner/Spring 2021 - Large Scale Data An
 #Read in evictions
 evictions <- str_glue('{data_dir}/Evictions.csv') %>%
   read_csv() %>%
-  clean_names()
+  clean_names() %>%
+  mutate(clean_date = as.Date(executed_date, "%m/%d/%Y")) %>%
+  filter(clean_date <= as.Date("12/31/2019", "%m/%d/%Y"))
+ 
+sapply(evictions, class)
 
 #A few of the zip codes were incorrect. I have created a list to update them (also include some zips that were probably correct - will need to filter)
 zip_updates <- str_glue('{data_dir}/zips_update.csv') %>%
