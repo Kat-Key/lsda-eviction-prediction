@@ -19,10 +19,9 @@ census_2017 <- get_acs(
   survey = "acs5",
   geometry = FALSE,
   year = 2017,
- # output = "wide",
-  variables = c( 
-    pop_17 = "B01003_001",
-    pov_pct_17 = "C17002_001", # poverty rate
+  output = "wide",
+  variables = c( pop_17 = "B01003_001E",
+    pov_pct_17 = "C17002_001E", # poverty rate
     hh_inc_med_17 = "B25119_001E", # hh_inc_med
     rent_gross_med_17 = "B25064_001E", # rent_gross_med
     pop_race_asian_num_17 = "B03002_006E", # pop_race_asian_num
@@ -30,11 +29,24 @@ census_2017 <- get_acs(
     pop_race_hisp_num_17 = "B03002_012E", # pop_race_hisp_num
     pop_race_white_num_17 = "B03002_003E", # pop_race_white_num
     total_units_rent_17 = "B25032_013E", # 	total_units_rent
-    total_units_17 = "B25024_001E" # total_units
-    )
-    ) %>%
-  select("NAME", "variable", "estimate") %>%
-  pivot_wider(id_cols = c("variable"), names_from = "NAME", values_from = "estimate")
+    total_units_17 = "B25024_001E")) %>%
+      mutate(
+    pop_race_asian_prc_17 = (pop_race_asian_num_17/pop_17)*100,
+    pop_race_black_prc_17 = (pop_race_black_num_17/pop_17)*100,
+    pop_race_hisp_prc_17 = (pop_race_hisp_num_17/pop_17)*100,
+    pop_race_white_prc_17 = (pop_race_white_num_17/pop_17)*100)
+# %>%
+#   select("NAME", "variable", "estimate") 
+# %>%
+#   pivot_wider(id_cols = c("variable"), names_from = "NAME", values_from = "estimate")
+# census_2017 <- census_2017
+
+  # group_by(NAME) %>%
+  # mutate(
+  #   pop_race_asian_prc_17 = (pop_race_asian_num_17/pop_17),
+  #   pop_race_black_prc_17 = (pop_race_black_num_17/pop_17),
+  #   pop_race_hisp_prc_17 = (pop_race_hisp_num_17/pop_17),
+  #   pop_race_white_prc_17 = (pop_race_white_num_17/pop_17) 
 ```
 ```{r}
 #Pulling 2012-20 Data
@@ -42,10 +54,11 @@ census_2012 <- get_acs(
   geography = "zip code tabulation area", 
   survey = "acs5",
   geometry = FALSE,
+  output = "wide",
   year = 2012,
   variables = c( 
-    pop_12 = "B01003_001",
-    pov_pct_12 = "C17002_001", # poverty rate
+    pop_12 = "B01003_001E",
+    pov_pct_12 = "C17002_001E", # poverty rate
     hh_inc_med_12 = "B25119_001E", # hh_inc_med
     rent_gross_med_12 = "B25064_001E", # rent_gross_med
     pop_race_asian_num_12 = "B03002_006E", # pop_race_asian_num
@@ -56,15 +69,86 @@ census_2012 <- get_acs(
     total_units_12 = "B25024_001E" # total_units
     )
     ) %>%
-  select("NAME", "variable", "estimate") %>%
-  pivot_wider(id_cols = c("variable"), names_from = "NAME", values_from = "estimate")
+  mutate(
+    pop_race_asian_prc_12 = (pop_race_asian_num_12/pop_12)*100,
+    pop_race_black_prc_12 = (pop_race_black_num_12/pop_12)*100,
+    pop_race_hisp_prc_12 = (pop_race_hisp_num_12/pop_12)*100,
+    pop_race_white_prc_12 = (pop_race_white_num_12/pop_12)*100
+  )
+
+
+# %>%
+#   select("NAME", "variable", "estimate") %>%
+#   pivot_wider(id_cols = c("variable"), names_from = "NAME", values_from = "estimate") 
+# %>%
+#   mutate(
+#     pop_race_asian_prc_12 = pop_race_asian_num_12/pop_12,
+#     pop_race_black_prc_12 = pop_race_black_num_12/pop_12,
+#     pop_race_hisp_prc_12 = pop_race_hisp_num_12/pop_12,
+#     pop_race_white_prc_12 = pop_race_white_num_12/pop_12
+#   )
 
 ```
 
 ## Binding Rows
 ```{r}
-census <- rbind(census_2017, census_2012) %>%
-  mutate(pop_prc_ch = (pop_2017 - pop_2012)/pop_2017)
+census_join <- census_2017 %>%
+  left_join(census_2012, by = c("NAME", "GEOID")) %>%
+  select(
+    NAME,
+    GEOID,
+    pop_17 = pop_17,
+    pov_pct_17 = pov_pct_17, # poverty rate
+    hh_inc_med_17 = hh_inc_med_17, # hh_inc_med
+    rent_gross_med_17 = rent_gross_med_17, # rent_gross_med
+    pop_race_asian_num_17 = pop_race_asian_num_17, # pop_race_asian_num
+    pop_race_black_num_17 = pop_race_black_num_17, # pop_race_black_num
+    pop_race_hisp_num_17 = pop_race_hisp_num_17, # pop_race_hisp_num
+    pop_race_white_num_17 = pop_race_white_num_17, # pop_race_white_num
+    total_units_rent_17 = total_units_rent_17, # 	total_units_rent
+    total_units_17 = total_units_17,
+    pop_race_asian_prc_17 = pop_race_asian_prc_17,
+    pop_race_asian_prc_17 = pop_race_asian_prc_17,
+    pop_race_hisp_prc_17 = pop_race_hisp_prc_17,
+    pop_race_white_prc_17 = pop_race_white_prc_17,
+    pop_12,
+    pov_pct_12,
+    hh_inc_med_12,
+    rent_gross_med_12,
+    pop_race_asian_num_12,
+    pop_race_black_num_12,
+    pop_race_hisp_num_12,
+    pop_race_white_num_12,
+    total_units_rent_12,
+    total_units_12
+  ) %>%
+  mutate(pop_prc_ch = (pop_17 - pop_12)/pop_17,
+         pov_pct_ch = (pov_pct_17 - pov_pct_12)/pov_pct_17,
+         hh_inc_med_ch = (hh_inc_med_17 - hh_inc_med_12)/hh_inc_med_17,
+         rent_gross_med_ch = (rent_gross_med_17 - rent_gross_med_12)/rent_gross_med_17,
+         total_units_rent_ch = (total_units_rent_17 - total_units_rent_12)/total_units_rent_17,
+         )
+```
+# Joining with eviction data
+```{r}
+str_remove(census_join, "[ZCTA5 ]")
+eviction <- read_csv("eviction_zcta_17to19.csv")
+
+eviction_acs_ <- eviction %>%
+  left_join(census_join, by = )
+```
+
+    
+
+#census <- rbind(census_2017, census_2012) 
+
+# %>%
+#   mutate(pop_prc_ch = (pop_17 - pop_12)/pop_17,
+#          pov_pct_ch = (pov_pct_17 - pov_pct_12)/pov_pct_17,
+#          hh_inc_med_ch = (hh_inc_med_17 - hh_inc_med_12)/hh_inc_med_17,
+#          rent_gross_med_ch = (rent_gross_med_17 - rent_gross_med_12)/rent_gross_med_17,
+#          total_units_rent_ch = (total_units_rent_17 - total_units_rent_12)/total_units_rent_17,
+#          )
 ```
 
 ## Notes
