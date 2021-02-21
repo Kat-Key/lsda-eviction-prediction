@@ -131,12 +131,20 @@ census_join <- census_2017 %>%
 ```
 # Joining with eviction data
 ```{r}
-census_join <- census_join %>% paste("ZCTA 5", NAME, sep = " ")%>%
-  mutate(zcta = NAME)
-eviction <- read_csv("eviction_zcta_17to19.csv")
+census_join_test <- census_join %>%
+  mutate(zcta = word(NAME,-1)) 
+# census_join <- census_join %>% paste("ZCTA 5", NAME, sep = " ")%>%
+#   mutate(zcta = NAME)
 
-eviction_acs_ <- eviction %>%
-  left_join(census_join, by = zcta)
+eviction <- read_csv("eviction_zcta_17to19.csv")%>%
+  mutate(zcta = as.character(zcta))
+
+
+eviction_acs <- left_join(eviction, census_join_test, by = 'zcta')
+
+eviction_acs_final <- eviction_acs %>%
+  select(-c("X1","NAME","GEOID"))
+
 
 ```
 
