@@ -18,19 +18,26 @@ evictions <- str_glue('{data_dir}/Evictions.csv') %>%
   read_csv() %>%
   clean_names()
 
+#A few of the zip codes were incorrect. I have created a list to update them (also include some zips that were probably correct - will need to filter)
+zip_updates <- str_glue('{data_dir}/zips_update.csv') %>%
+  read_csv() %>%
+  filter(!is.na(court_index_number))
 
-#Calculate number of evictions per zip code
+evictions <- left_join(evictions, zip_updates, by = "court_index_number")
+
+#Update incorrect zips & calculate number of evictions per zip code
 evictions_zip <- evictions %>%
+  mutate(eviction_zip = ifelse(is.na(correct_zip),eviction_zip,correct_zip)) %>%
   group_by(eviction_zip) %>%
   summarize(evictions_count = n())
 
 #Read in zip to zcta
 
-zcta_join <- str_glue('{data_dir}/zip_to_zcta10_nyc.csv') %>%
-  read_csv() 
+zcta_join <- str_glue('{data_dir}/zip_to_zcta_nyc.csv') %>%
+  read_csv() %>%
+  select(-c("X5","X6"))
 
-#Join evictions_zip and zcta_join to convert the zip codes to zctas
+eviction_zcta <- left_join(evictions_zip,zcta_join, by = c("eviction_zip" = "zipcode"))
 
-eviction_zcta <- left_join(evictions_zip,zcta_join, by = c("eviction_zip" = "ZIP"))
-
-##TO-DO: Several are missing/incorrect so I will update and explore 
+# eviction_zcta_na <- eviction_zcta %>%
+#   filter(is.na(zcta))
