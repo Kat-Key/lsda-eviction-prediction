@@ -19,52 +19,70 @@ census_2017 <- get_acs(
   survey = "acs5",
   geometry = FALSE,
   year = 2017,
+ # output = "wide",
   variables = c( 
-    "pov_pct" = "C17002_001", # poverty rate
-    "hh_inc_med" = "B25119_001E", # hh_inc_med
-    "rent_gross_med" = "B25064_001E", # rent_gross_med
-    #acs_vars("B25070_{7:10*}E") # rent_burden_num
-    "pop_race_asian_num" = "B03002_006E", # pop_race_asian_num
-    "pop_race_black_num" = "B03002_004E", # pop_race_black_num
-    "pop_race_hisp_num" = "B03002_012E", # pop_race_hisp_num
-    "pop_race_white_num" = "B03002_003E", # pop_race_white_num
-    "total_units_rent" = "B25032_013E", # 	total_units_rent
-    "total_units" = "B25024_001E" # total_units
+    pop_17 = "B01003_001",
+    pov_pct_17 = "C17002_001", # poverty rate
+    hh_inc_med_17 = "B25119_001E", # hh_inc_med
+    rent_gross_med_17 = "B25064_001E", # rent_gross_med
+    pop_race_asian_num_17 = "B03002_006E", # pop_race_asian_num
+    pop_race_black_num_17 = "B03002_004E", # pop_race_black_num
+    pop_race_hisp_num_17 = "B03002_012E", # pop_race_hisp_num
+    pop_race_white_num_17 = "B03002_003E", # pop_race_white_num
+    total_units_rent_17 = "B25032_013E", # 	total_units_rent
+    total_units_17 = "B25024_001E" # total_units
     )
     ) %>%
-  select("GEOID", "NAME", "variable", "estimate") %>%
-  pivot_wider(id_cols = c("GEOID", "NAME"), names_from = "variable", values_from = "estimate")
+  select("NAME", "variable", "estimate") %>%
+  pivot_wider(id_cols = c("variable"), names_from = "NAME", values_from = "estimate")
 ```
 ```{r}
 #Pulling 2012-20 Data
-
 census_2012 <- get_acs(
   geography = "zip code tabulation area", 
   survey = "acs5",
   geometry = FALSE,
   year = 2012,
   variables = c( 
-    "pov_pct" = "C17002_001", # poverty rate
-    "hh_inc_med" = "B25119_001E", # hh_inc_med
-    "rent_gross_med" = "B25064_001E", # rent_gross_med
-    #acs_vars("B25070_{7:10*}E") # rent_burden_num
-    "pop_race_asian_num" = "B03002_006E", # pop_race_asian_num
-    "pop_race_black_num" = "B03002_004E", # pop_race_black_num
-    "pop_race_hisp_num" = "B03002_012E", # pop_race_hisp_num
-    "pop_race_white_num" = "B03002_003E", # pop_race_white_num
-    "total_units_rent" = "B25032_013E", # 	total_units_rent
-    "total_units" = "B25024_001E" # total_units
+    pop_12 = "B01003_001",
+    pov_pct_12 = "C17002_001", # poverty rate
+    hh_inc_med_12 = "B25119_001E", # hh_inc_med
+    rent_gross_med_12 = "B25064_001E", # rent_gross_med
+    pop_race_asian_num_12 = "B03002_006E", # pop_race_asian_num
+    pop_race_black_num_12 = "B03002_004E", # pop_race_black_num
+    pop_race_hisp_num_12 = "B03002_012E", # pop_race_hisp_num
+    pop_race_white_num_12 = "B03002_003E", # pop_race_white_num
+    total_units_rent_12 = "B25032_013E", # 	total_units_rent
+    total_units_12 = "B25024_001E" # total_units
     )
     ) %>%
-  select("GEOID", "NAME", "variable", "estimate") %>%
-  pivot_wider(id_cols = c("GEOID", "NAME"), names_from = "variable", values_from = "estimate")
+  select("NAME", "variable", "estimate") %>%
+  pivot_wider(id_cols = c("variable"), names_from = "NAME", values_from = "estimate")
 
 ```
 
-## Filtering Zipcodes
+## Binding Rows
+```{r}
+census <- rbind(census_2017, census_2012) %>%
+  mutate(pop_prc_ch = (pop_2017 - pop_2012)/pop_2017)
+```
+
+## Notes
 
 ```{r}
-
+  # select(
+  #   "pov_pct" = "C17002_001", # poverty rate
+  #   "hh_inc_med" = "B25119_001E", # hh_inc_med
+  #   "rent_gross_med" = "B25064_001E", # rent_gross_med
+  #   #acs_vars("B25070_{7:10*}E") # rent_burden_num
+  #   "pop_race_asian_num" = "B03002_006E", # pop_race_asian_num
+  #   "pop_race_black_num" = "B03002_004E", # pop_race_black_num
+  #   "pop_race_hisp_num" = "B03002_012E", # pop_race_hisp_num
+  #   "pop_race_white_num" = "B03002_003E", # pop_race_white_num
+  #   "total_units_rent" = "B25032_013E", # 	total_units_rent
+  #   "total_units" = "B25024_001E" # total_units
+  #   )
+  #   )
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
