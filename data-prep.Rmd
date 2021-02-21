@@ -29,7 +29,9 @@ census_2017 <- get_acs(
     pop_race_hisp_num_17 = "B03002_012E", # pop_race_hisp_num
     pop_race_white_num_17 = "B03002_003E", # pop_race_white_num
     total_units_rent_17 = "B25032_013E", # 	total_units_rent
-    total_units_17 = "B25024_001E")) %>%
+    total_units_17 = "B25024_001E", 
+    total_bach_degree_17 = "B06009_005E" #Estimate Total Bachelor's degree
+    )) %>%
       mutate(
     pop_race_asian_prc_17 = (pop_race_asian_num_17/pop_17)*100,
     pop_race_black_prc_17 = (pop_race_black_num_17/pop_17)*100,
@@ -66,7 +68,8 @@ census_2012 <- get_acs(
     pop_race_hisp_num_12 = "B03002_012E", # pop_race_hisp_num
     pop_race_white_num_12 = "B03002_003E", # pop_race_white_num
     total_units_rent_12 = "B25032_013E", # 	total_units_rent
-    total_units_12 = "B25024_001E" # total_units
+    total_units_12 = "B25024_001E", # total_units
+    total_bach_degree_12 = "B06009_005E" #Estimate Total Bachelor's degree
     )
     ) %>%
   mutate(
@@ -93,10 +96,10 @@ census_2012 <- get_acs(
 ## Binding Rows
 ```{r}
 census_join <- census_2017 %>%
-  left_join(census_2012, by = c("NAME", "GEOID")) %>%
+  left_join(census_2012, by = "NAME") %>%
   select(
     NAME,
-    GEOID,
+    #GEOID,
     pop_17 = pop_17,
     pov_pct_17 = pov_pct_17, # poverty rate
     hh_inc_med_17 = hh_inc_med_17, # hh_inc_med
@@ -108,9 +111,10 @@ census_join <- census_2017 %>%
     total_units_rent_17 = total_units_rent_17, # 	total_units_rent
     total_units_17 = total_units_17,
     pop_race_asian_prc_17 = pop_race_asian_prc_17,
-    pop_race_asian_prc_17 = pop_race_asian_prc_17,
+    pop_race_black_prc_17 = pop_race_black_prc_17,
     pop_race_hisp_prc_17 = pop_race_hisp_prc_17,
     pop_race_white_prc_17 = pop_race_white_prc_17,
+    total_bach_degree_17 = total_bach_degree_17,
     pop_12,
     pov_pct_12,
     hh_inc_med_12,
@@ -119,14 +123,25 @@ census_join <- census_2017 %>%
     pop_race_black_num_12,
     pop_race_hisp_num_12,
     pop_race_white_num_12,
+    total_bach_degree_12,
     total_units_rent_12,
-    total_units_12
+    total_units_12, 
+    pop_race_asian_prc_12,
+    pop_race_black_prc_12,
+    pop_race_hisp_prc_12,
+    pop_race_white_prc_12
   ) %>%
   mutate(pop_prc_ch = (pop_17 - pop_12)/pop_17,
          pov_pct_ch = (pov_pct_17 - pov_pct_12)/pov_pct_17,
          hh_inc_med_ch = (hh_inc_med_17 - hh_inc_med_12)/hh_inc_med_17,
          rent_gross_med_ch = (rent_gross_med_17 - rent_gross_med_12)/rent_gross_med_17,
          total_units_rent_ch = (total_units_rent_17 - total_units_rent_12)/total_units_rent_17,
+         total_bach_degree_ch = (total_bach_degree_17 - total_bach_degree_12)/total_bach_degree_17, 
+         pop_race_asian_prc_ch = (pop_race_asian_prc_17 - pop_race_asian_prc_12)/pop_race_asian_prc_17,
+         pop_race_black_prc_ch = (pop_race_black_prc_17 - pop_race_black_prc_12)/pop_race_black_prc_17,
+         pop_race_hisp_prc_ch = (pop_race_hisp_prc_17 - pop_race_hisp_prc_12)/pop_race_hisp_prc_17,
+         pop_race_white_prc_ch = (pop_race_white_prc_17 - pop_race_white_prc_12)/pop_race_white_prc_17,
+         total_bach_degree_ch = (total_bach_degree_17 - total_bach_degree_12)/total_bach_degree_17
          )
 ```
 # Joining with eviction data
@@ -143,8 +158,25 @@ eviction <- read_csv("eviction_zcta_17to19.csv")%>%
 eviction_acs <- left_join(eviction, census_join_test, by = 'zcta')
 
 eviction_acs_final <- eviction_acs %>%
-  select(-c("X1","NAME","GEOID"))
+  select(-c("X1","NAME")) %>%
+  filter(pop_17 > 200) %>% #filtering out the 0 pop zcta and 11430 because it is JFK airport. 
+  mutate(eviction_1000 = round(evictions_count/(pop_17/1000),digits = 2), 
+         avg_eviction_1000 = round(eviction_1000/3, digits = 2)) %>%
+  select(c(zcta,
+           boro, 
+           pop_prc_ch, 
+           pov_pct_ch,
+           hh_inc_med_ch,
+           rent_gross_med_ch,
+           total_units_rent_ch, 
+           total_bach_degree_ch, 
+           pop_race_asian_prc_ch, 
+           pop_race_black_prc_ch,
+           pop_race_hisp_prc_ch, 
+           pop_race_white_prc_ch, 
+           avg_eviction_1000))
 
+write.csv(eviction_acs_final, 'C:/Users/Invario/Documents/GitHub/lsda-eviction-prediction/eviction_zcta_17to19.csv')
 
 ```
 
