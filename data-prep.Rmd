@@ -131,11 +131,13 @@ census_join <- census_2017 %>%
 ```
 # Joining with eviction data
 ```{r}
-str_remove(census_join, "[ZCTA5 ]")
+census_join <- census_join %>% paste("ZCTA 5", NAME, sep = " ")%>%
+  mutate(zcta = NAME)
 eviction <- read_csv("eviction_zcta_17to19.csv")
 
 eviction_acs_ <- eviction %>%
-  left_join(census_join, by = )
+  left_join(census_join, by = zcta)
+
 ```
 
     
