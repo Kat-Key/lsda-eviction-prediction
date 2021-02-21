@@ -10,7 +10,7 @@ library(tidyverse)
 library(lubridate)
 library(janitor)
 
-data_dir <- "C:/Users/Invario/Documents/Wagner/Spring 2021 - Large Scale Data Analysis/Assignment 1/Data"
+data_dir <- "C:/Users/Invario/Documents/Wagner/Spring 2021 - Large Scale Data Analysis/Mini-Project/Data"
 
 
 #Read in evictions
@@ -35,9 +35,18 @@ evictions_zip <- evictions %>%
 
 zcta_join <- str_glue('{data_dir}/zip_to_zcta_nyc.csv') %>%
   read_csv() %>%
-  select(-c("X5","X6"))
+  select(-c("X5","X6")) %>%
+  filter(!is.na(zipcode))
 
-eviction_zcta <- left_join(evictions_zip,zcta_join, by = c("eviction_zip" = "zipcode"))
+eviction_zcta <- left_join(zcta_join, evictions_zip, by = c("zipcode" = "eviction_zip"))
+
+eviction_zcta_final <-eviction_zcta %>%
+  mutate(evictions_count = ifelse(is.na(evictions_count), 0, evictions_count)) %>%
+  select(c("zcta","evictions_count", "boro"))
 
 # eviction_zcta_na <- eviction_zcta %>%
 #   filter(is.na(zcta))
+
+write.csv(eviction_zcta_final,str_glue('{data_dir}/eviction_zcta_17to19.csv'))
+
+write.csv(eviction_zcta_final, 'C:/Users/Invario/Documents/GitHub/lsda-eviction-prediction/eviction_zcta_17to19.csv')
