@@ -36,7 +36,8 @@ census_2017 <- get_acs(
     pop_race_asian_prc_17 = (pop_race_asian_num_17/pop_17)*100,
     pop_race_black_prc_17 = (pop_race_black_num_17/pop_17)*100,
     pop_race_hisp_prc_17 = (pop_race_hisp_num_17/pop_17)*100,
-    pop_race_white_prc_17 = (pop_race_white_num_17/pop_17)*100)
+    pop_race_white_prc_17 = (pop_race_white_num_17/pop_17)*100, 
+    total_bach_degree_prc_17 = (total_bach_degree_17/pop_17)*100)
 # %>%
 #   select("NAME", "variable", "estimate") 
 # %>%
@@ -76,7 +77,8 @@ census_2012 <- get_acs(
     pop_race_asian_prc_12 = (pop_race_asian_num_12/pop_12)*100,
     pop_race_black_prc_12 = (pop_race_black_num_12/pop_12)*100,
     pop_race_hisp_prc_12 = (pop_race_hisp_num_12/pop_12)*100,
-    pop_race_white_prc_12 = (pop_race_white_num_12/pop_12)*100
+    pop_race_white_prc_12 = (pop_race_white_num_12/pop_12)*100, 
+    total_bach_degree_prc_12 = (total_bach_degree_12/pop_12)*100
   )
 
 
@@ -114,7 +116,7 @@ census_join <- census_2017 %>%
     pop_race_black_prc_17 = pop_race_black_prc_17,
     pop_race_hisp_prc_17 = pop_race_hisp_prc_17,
     pop_race_white_prc_17 = pop_race_white_prc_17,
-    total_bach_degree_17 = total_bach_degree_17,
+    total_bach_degree_prc_17 = total_bach_degree_prc_17,
     pop_12,
     pov_pct_12,
     hh_inc_med_12,
@@ -123,7 +125,7 @@ census_join <- census_2017 %>%
     pop_race_black_num_12,
     pop_race_hisp_num_12,
     pop_race_white_num_12,
-    total_bach_degree_12,
+    total_bach_degree_prc_12,
     total_units_rent_12,
     total_units_12, 
     pop_race_asian_prc_12,
@@ -136,12 +138,12 @@ census_join <- census_2017 %>%
          hh_inc_med_ch = (hh_inc_med_17 - hh_inc_med_12)/hh_inc_med_17,
          rent_gross_med_ch = (rent_gross_med_17 - rent_gross_med_12)/rent_gross_med_17,
          total_units_rent_ch = (total_units_rent_17 - total_units_rent_12)/total_units_rent_17,
-         total_bach_degree_ch = (total_bach_degree_17 - total_bach_degree_12)/total_bach_degree_17, 
+         #total_bach_degree_ch = (total_bach_degree_17 - total_bach_degree_12)/total_bach_degree_17, 
          pop_race_asian_prc_ch = (pop_race_asian_prc_17 - pop_race_asian_prc_12)/pop_race_asian_prc_17,
          pop_race_black_prc_ch = (pop_race_black_prc_17 - pop_race_black_prc_12)/pop_race_black_prc_17,
          pop_race_hisp_prc_ch = (pop_race_hisp_prc_17 - pop_race_hisp_prc_12)/pop_race_hisp_prc_17,
          pop_race_white_prc_ch = (pop_race_white_prc_17 - pop_race_white_prc_12)/pop_race_white_prc_17,
-         total_bach_degree_ch = (total_bach_degree_17 - total_bach_degree_12)/total_bach_degree_17
+         total_bach_degree_prc_ch = (total_bach_degree_prc_17 - total_bach_degree_prc_12)/total_bach_degree_prc_17
          )
 ```
 # Joining with eviction data
@@ -169,7 +171,7 @@ eviction_acs_final <- eviction_acs %>%
            hh_inc_med_ch,
            rent_gross_med_ch,
            total_units_rent_ch, 
-           total_bach_degree_ch, 
+           total_bach_degree_prc_ch, 
            pop_race_asian_prc_ch, 
            pop_race_black_prc_ch,
            pop_race_hisp_prc_ch, 
