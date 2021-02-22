@@ -7,6 +7,7 @@ output: html_document
 install.packages("tidyverse", "tidycensus")
 library(tidyverse)
 library(tidycensus)
+library(foreign)
 
 census_api_key("4ce84da33024270337d2c7a57c4b2cbf6bc78f6c")
 ```
@@ -133,17 +134,17 @@ census_join <- census_2017 %>%
     pop_race_hisp_prc_12,
     pop_race_white_prc_12
   ) %>%
-  mutate(pop_prc_ch = (pop_17 - pop_12)/pop_17,
-         pov_pct_ch = (pov_pct_17 - pov_pct_12)/pov_pct_17,
-         hh_inc_med_ch = (hh_inc_med_17 - hh_inc_med_12)/hh_inc_med_17,
-         rent_gross_med_ch = (rent_gross_med_17 - rent_gross_med_12)/rent_gross_med_17,
-         total_units_rent_ch = (total_units_rent_17 - total_units_rent_12)/total_units_rent_17,
+  mutate(pop_prc_ch = ifelse(pop_17 == 0, -1, (pop_17 - pop_12)/pop_17),
+         pov_pct_ch = ifelse(pov_pct_17 == 0, -1, (pov_pct_17 - pov_pct_12)/pov_pct_17),
+         hh_inc_med_ch = ifelse(hh_inc_med_17 == 0, -1, (hh_inc_med_17 - hh_inc_med_12)/hh_inc_med_17),
+         rent_gross_med_ch = ifelse(rent_gross_med_17 == 0, -1, (rent_gross_med_17 - rent_gross_med_12)/rent_gross_med_17),
+         total_units_rent_ch = ifelse(total_units_rent_17 == 0, -1, (total_units_rent_17 - total_units_rent_12)/total_units_rent_17),
          #total_bach_degree_ch = (total_bach_degree_17 - total_bach_degree_12)/total_bach_degree_17, 
-         pop_race_asian_prc_ch = (pop_race_asian_prc_17 - pop_race_asian_prc_12)/pop_race_asian_prc_17,
-         pop_race_black_prc_ch = (pop_race_black_prc_17 - pop_race_black_prc_12)/pop_race_black_prc_17,
-         pop_race_hisp_prc_ch = (pop_race_hisp_prc_17 - pop_race_hisp_prc_12)/pop_race_hisp_prc_17,
-         pop_race_white_prc_ch = (pop_race_white_prc_17 - pop_race_white_prc_12)/pop_race_white_prc_17,
-         total_bach_degree_prc_ch = (total_bach_degree_prc_17 - total_bach_degree_prc_12)/total_bach_degree_prc_17
+         pop_race_asian_prc_ch = ifelse(pop_race_asian_prc_17 == 0, -1, (pop_race_asian_prc_17 - pop_race_asian_prc_12)/pop_race_asian_prc_17),
+         pop_race_black_prc_ch = ifelse(pop_race_black_prc_17 == 0, -1, (pop_race_black_prc_17 - pop_race_black_prc_12)/pop_race_black_prc_17),
+         pop_race_hisp_prc_ch = ifelse(pop_race_hisp_prc_17 == 0, -1, (pop_race_hisp_prc_17 - pop_race_hisp_prc_12)/pop_race_hisp_prc_17),
+         pop_race_white_prc_ch = ifelse(pop_race_white_prc_17 == 0, -1, (pop_race_white_prc_17 - pop_race_white_prc_12)/pop_race_white_prc_17),
+         total_bach_degree_prc_ch = ifelse(total_bach_degree_prc_17 == 0, -1, (total_bach_degree_prc_17 - total_bach_degree_prc_12)/total_bach_degree_prc_17)
          )
 ```
 # Joining with eviction data
@@ -176,9 +177,16 @@ eviction_acs_final <- eviction_acs %>%
            pop_race_black_prc_ch,
            pop_race_hisp_prc_ch, 
            pop_race_white_prc_ch, 
-           avg_eviction_1000))
+           avg_eviction_1000)) %>%
+  mutate_all(~replace(., is.na(.), 0))
+
+sapply(eviction_acs_final,class)
 
 write.csv(eviction_acs_final, 'C:/Users/Invario/Documents/GitHub/lsda-eviction-prediction/eviction_acs.csv')
+
+#Write to an arrff file bc csv is having trouble with WEKA
+
+#write.arff(eviction_acs_final,'C:/Users/Invario/Documents/GitHub/lsda-eviction-prediction/eviction_acs.arff')
 
 ```
 
