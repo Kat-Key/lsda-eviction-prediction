@@ -4,7 +4,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-install.packages("tidyverse", "tidycensus")
+#install.packages("tidyverse", "tidycensus")
 library(tidyverse)
 library(tidycensus)
 library(foreign)
@@ -38,7 +38,8 @@ census_2017 <- get_acs(
     pop_race_black_prc_17 = (pop_race_black_num_17/pop_17)*100,
     pop_race_hisp_prc_17 = (pop_race_hisp_num_17/pop_17)*100,
     pop_race_white_prc_17 = (pop_race_white_num_17/pop_17)*100, 
-    total_bach_degree_prc_17 = (total_bach_degree_17/pop_17)*100)
+    total_bach_degree_prc_17 = (total_bach_degree_17/pop_17)*100, 
+    norm_rental_17 = (total_units_rent_17/total_units_17)*100)
 # %>%
 #   select("NAME", "variable", "estimate") 
 # %>%
@@ -79,7 +80,8 @@ census_2012 <- get_acs(
     pop_race_black_prc_12 = (pop_race_black_num_12/pop_12)*100,
     pop_race_hisp_prc_12 = (pop_race_hisp_num_12/pop_12)*100,
     pop_race_white_prc_12 = (pop_race_white_num_12/pop_12)*100, 
-    total_bach_degree_prc_12 = (total_bach_degree_12/pop_12)*100
+    total_bach_degree_prc_12 = (total_bach_degree_12/pop_12)*100, 
+    norm_rental_12 = (total_units_rent_12/total_units_12)*100
   )
 
 
@@ -118,6 +120,7 @@ census_join <- census_2017 %>%
     pop_race_hisp_prc_17 = pop_race_hisp_prc_17,
     pop_race_white_prc_17 = pop_race_white_prc_17,
     total_bach_degree_prc_17 = total_bach_degree_prc_17,
+    norm_rental_17,
     pop_12,
     pov_pct_12,
     hh_inc_med_12,
@@ -132,7 +135,8 @@ census_join <- census_2017 %>%
     pop_race_asian_prc_12,
     pop_race_black_prc_12,
     pop_race_hisp_prc_12,
-    pop_race_white_prc_12
+    pop_race_white_prc_12, 
+    norm_rental_12
   ) %>%
   mutate(pop_prc_ch = ifelse(pop_17 == 0, -1, (pop_17 - pop_12)/pop_17),
          pov_pct_ch = ifelse(pov_pct_17 == 0, -1, (pov_pct_17 - pov_pct_12)/pov_pct_17),
@@ -144,7 +148,8 @@ census_join <- census_2017 %>%
          pop_race_black_prc_ch = ifelse(pop_race_black_prc_17 == 0, -1, (pop_race_black_prc_17 - pop_race_black_prc_12)/pop_race_black_prc_17),
          pop_race_hisp_prc_ch = ifelse(pop_race_hisp_prc_17 == 0, -1, (pop_race_hisp_prc_17 - pop_race_hisp_prc_12)/pop_race_hisp_prc_17),
          pop_race_white_prc_ch = ifelse(pop_race_white_prc_17 == 0, -1, (pop_race_white_prc_17 - pop_race_white_prc_12)/pop_race_white_prc_17),
-         total_bach_degree_prc_ch = ifelse(total_bach_degree_prc_17 == 0, -1, (total_bach_degree_prc_17 - total_bach_degree_prc_12)/total_bach_degree_prc_17)
+         total_bach_degree_prc_ch = ifelse(total_bach_degree_prc_17 == 0, -1, (total_bach_degree_prc_17 - total_bach_degree_prc_12)/total_bach_degree_prc_17), 
+         norm_rental_ch = ifelse(norm_rental_17 == 0, -1, (norm_rental_17 - norm_rental_12)/norm_rental_17)
          )
 ```
 # Joining with eviction data
@@ -171,14 +176,14 @@ eviction_acs_final <- eviction_acs %>%
            pov_pct_ch,
            hh_inc_med_ch,
            rent_gross_med_ch,
-           total_units_rent_ch, 
+           norm_rental_ch, 
            total_bach_degree_prc_ch, 
            pop_race_asian_prc_ch, 
            pop_race_black_prc_ch,
            pop_race_hisp_prc_ch, 
            pop_race_white_prc_ch, 
            avg_eviction_1000)) %>%
-  mutate_all(~replace(., is.na(.), 0))
+  mutate_all(~replace(., is.na(.), "?"))
 
 sapply(eviction_acs_final,class)
 
